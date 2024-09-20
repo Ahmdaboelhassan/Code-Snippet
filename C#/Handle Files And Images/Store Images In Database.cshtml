@@ -1,0 +1,9 @@
+// Stote Image 
+using (MemoryStream stream = new MemoryStream())
+{
+    image.CopyTo(stream);
+    processorViewModel.processor.photo = stream.ToArray();
+}
+
+// ReadImage 
+<img src="@(Model.processor.id == 0 ? String.Empty: $"data:image/*;base64,{Convert.ToBase64String(Model.processor.photo)}")" alt="Processor Photo" id="img" class="w-100" />
