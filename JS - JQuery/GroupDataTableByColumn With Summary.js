@@ -1,4 +1,4 @@
-﻿function GroupDataTableByColumnsIndexArray(
+function GroupDataTableByColumnsIndexArray(
     tableSelector,
     groupColumnIndex,
     ColumnsToSumArray
@@ -9,7 +9,7 @@
         : typeof ColumnsToSumArray === "number"
             ? [ColumnsToSumArray]
             : [];
-
+    
     if ($.fn.DataTable.isDataTable(tableSelector)) {
         $(tableSelector).DataTable().destroy();
     }
@@ -19,6 +19,7 @@
             responsive: true,
             order: [[groupColumnIndex, "desc"]],
             displayLength: 25,
+            columnDefs: [{ targets: parseInt(groupColumnIndex), visible: false }],
             drawCallback: function (settings) {
                 var last = null;
                 var api = this.api();
@@ -70,14 +71,14 @@
                     });
             },
         });
-            table.draw(true)
+        table.draw(true)
     } else {
         var table = $(tableSelector).DataTable({
             responsive: true,
             displayLength: 10,
             order: [[0, "desc"]],
         });
-         table.draw(true)
+        table.draw(true)
     }
 }
 
@@ -116,3 +117,66 @@ function GetGroupRow(groupName, totalColumnsCount) {
         "</td></tr>"
     );
 }
+
+function FillGroupSelectListWithColumns(TableSelector ,SelectListSelector , lang) {
+    var table = $(TableSelector).DataTable();
+    var columns = table.columns().header().toArray();
+    var select = $(SelectListSelector);
+
+    select.empty();
+
+    if (lang == "ar") {
+        select.append($('<option></option>').attr('value', '').text('تجميع حسب العمود'));
+    }
+    else {
+        select.append($('<option></option>').attr('value', '').text('Group By Column'));
+    }
+    columns.forEach(function (column, index) {
+        // Get the first cell in the current column  to skip columns that contains number
+        //Because we dont want to group with number cols
+        var firstCellText = table.column(index).data()[0]; 
+
+        if (index > 0 && isNaN(+firstCellText)) {
+            var columnText = $(column).text().trim();
+            select.append($('<option></option>').attr('value', index).text(columnText));
+        }
+    });
+
+    if (lang == "ar") {
+            select.append($('<option></option>').attr('value', '').text('بدون تجميع'));
+    }
+    else {
+        select.append($('<option></option>').attr('value', '').text('No Group'));
+    }
+   
+
+}
+
+
+/*
+
+    In Views 
+    ----------------------
+     <div class="x_panel" style="overflow-x:auto">
+     <select class="form-control" style="width:30%" id="groupSelect">
+         <option value="" selected>@MyTypeLocalizer.GetLocalizedHtmlString("Group By Column")</option>
+     </select>
+ </div>
+ 
+   <script src="~/js/datatableextend-buttons.js"></script>
+  <script src="~/js/groupdatatablebycolumnsindexarray.js"></script>
+  <script>
+
+      $(function () {
+          FillGroupSelectListWithColumns("#example", "#groupSelect", '@lang')
+      })
+
+      $("#groupSelect").on('change', (e) => {
+          GroupDataTableByColumnsIndexArray("#example", e.target.value, [9, 10])
+          DataTableExtendButton('@lang')
+      })
+</script>
+
+*/
+
+
