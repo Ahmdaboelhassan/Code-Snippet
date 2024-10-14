@@ -50,22 +50,35 @@
         return File(memoryStream, uploadedFile.ContentType, uploadedFile.FileName);
     }
     [HttpGet]
-		public IActionResult DownloadFileV2(string fileName)
-		{
-		    var uploadedFile = _context.UploadedFiles.SingleOrDefault(f => f.StoredFileName == fileName);
-		
-		    if (uploadedFile is null)
-		        return NotFound();
-		
-		    var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
-		
-		    if (!System.IO.File.Exists(path))
-		        return NotFound();  // If the physical file doesn't exist
-		
-		    FileStream fileStream = new(path, FileMode.Open, FileAccess.Read);
-		
-		    return new FileStreamResult(fileStream, uploadedFile.ContentType)
-		    {
-		        FileDownloadName = uploadedFile.FileName
-		    };
-		}
+	public IActionResult DownloadFileV2(string fileName)
+	{
+	    var uploadedFile = _context.UploadedFiles.SingleOrDefault(f => f.StoredFileName == fileName);
+	
+	    if (uploadedFile is null)
+		return NotFound();
+	
+	    var path = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", fileName);
+	
+	    if (!System.IO.File.Exists(path))
+		return NotFound();  // If the physical file doesn't exist
+	
+	    FileStream fileStream = new(path, FileMode.Open, FileAccess.Read);
+	
+	    return new FileStreamResult(fileStream, uploadedFile.ContentType)
+	    {
+		FileDownloadName = uploadedFile.FileName
+	    };
+	}
+
+	public IActionResult DownloadFileV3(string templateName)
+	{
+	    var fileName = templateName + ".xlsx";
+	    var path = Path.Combine(Directory.GetCurrentDirectory() , "wwwroot", "Template Files", fileName);
+	
+	    if (!System.IO.File.Exists(path))
+	        return NotFound();  // If the physical file doesn't exist
+	
+	    return PhysicalFile(path, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+	
+	}
+
